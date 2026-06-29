@@ -1,0 +1,66 @@
+{
+  "project_name": "VikVec detected scenes",
+  "created_at": "2026-06-29T21:58:43.519257+00:00",
+  "assets": [
+    {
+      "asset_name": "scene_candidate_01",
+      "asset_type": "scene",
+      "source_file": "input/reference_scene.png",
+      "bbox": [
+        169,
+        0,
+        178,
+        146
+      ],
+      "output_file": "output/png_assets/trimmed/scene_candidate_01.png",
+      "quality_status": "success",
+      "review_status": "needs_review",
+      "notes": "Detected candidate scene island"
+    },
+    {
+      "asset_name": "scene_candidate_02",
+      "asset_type": "scene",
+      "source_file": "input/reference_scene.png",
+      "bbox": [
+        292,
+        41,
+        213,
+        166
+      ],
+      "output_file": "output/png_assets/trimmed/scene_candidate_02.png",
+      "quality_status": "success",
+      "review_status": "needs_review",
+      "notes": "Detected candidate scene island"
+    },
+    {
+      "asset_name": "scene_candidate_03",
+      "asset_type": "scene",
+      "source_file": "input/reference_scene.png",
+      "bbox": [
+        0,
+        55,
+        218,
+        159
+      ],
+      "output_file": "output/png_assets/trimmed/scene_candidate_03.png",
+      "quality_status": "success",
+      "review_status": "needs_review",
+      "notes": "Detected candidate scene island"
+    },
+    {
+      "asset_name": "scene_candidate_04",
+      "asset_type": "scene",
+      "source_file": "input/reference_scene.png",
+      "bbox": [
+        150,
+        124,
+        215,
+        177
+      ],
+      "output_file": "output/png_assets/trimmed/scene_candidate_04.png",
+      "quality_status": "success",
+      "review_status": "needs_review",
+      "notes": "Detected candidate scene island"
+    }
+  ]
+}
