@@ -31,3 +31,14 @@ def remove_background(input_path: str | Path, output_path: str | Path, color: st
         target.parent.mkdir(parents=True, exist_ok=True)
         rgba.save(target, format="PNG")
         return target
+
+
+def isolate_auto_foreground(input_path: str | Path, output_path: str | Path, threshold: int = 240) -> Path:
+    """Remove a light white background for white-background asset sheets.
+
+    This is a lightweight current-backend fallback for the common case of sheet-based
+    references. It can later be replaced by optional segmentation or background-removal
+    backends without changing the manifest workflow.
+    """
+
+    return remove_background(input_path, output_path, color="white", threshold=threshold)

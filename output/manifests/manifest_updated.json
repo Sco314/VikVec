@@ -1,6 +1,6 @@
 {
   "project_name": "VikVec detected scenes",
-  "created_at": "2026-06-29T21:58:43.519257+00:00",
+  "created_at": "2026-06-30T21:40:46.212616+00:00",
   "assets": [
     {
       "asset_name": "scene_candidate_01",
@@ -12,10 +12,22 @@
         178,
         146
       ],
-      "output_file": "output/png_assets/trimmed/scene_candidate_01.png",
+      "raw_output_file": "output/png_assets/raw/scene_candidate_01.png",
+      "trimmed_output_file": "output/png_assets/trimmed/scene_candidate_01.png",
+      "final_output_file": null,
+      "mask_file": null,
+      "mask_type": "bbox",
+      "extraction_method": "bbox",
       "quality_status": "success",
       "review_status": "needs_review",
-      "notes": "Detected candidate scene island"
+      "animation_role": null,
+      "movable": false,
+      "layer_order": null,
+      "pivot_point": null,
+      "anchor_point": null,
+      "motion_presets": [],
+      "notes": "Detected candidate scene island",
+      "output_file": "output/png_assets/trimmed/scene_candidate_01.png"
     },
     {
       "asset_name": "scene_candidate_02",
@@ -27,10 +39,22 @@
         213,
         166
       ],
-      "output_file": "output/png_assets/trimmed/scene_candidate_02.png",
+      "raw_output_file": "output/png_assets/raw/scene_candidate_02.png",
+      "trimmed_output_file": "output/png_assets/trimmed/scene_candidate_02.png",
+      "final_output_file": null,
+      "mask_file": null,
+      "mask_type": "bbox",
+      "extraction_method": "bbox",
       "quality_status": "success",
       "review_status": "needs_review",
-      "notes": "Detected candidate scene island"
+      "animation_role": null,
+      "movable": false,
+      "layer_order": null,
+      "pivot_point": null,
+      "anchor_point": null,
+      "motion_presets": [],
+      "notes": "Detected candidate scene island",
+      "output_file": "output/png_assets/trimmed/scene_candidate_02.png"
     },
     {
       "asset_name": "scene_candidate_03",
@@ -42,10 +66,22 @@
         218,
         159
       ],
-      "output_file": "output/png_assets/trimmed/scene_candidate_03.png",
+      "raw_output_file": "output/png_assets/raw/scene_candidate_03.png",
+      "trimmed_output_file": "output/png_assets/trimmed/scene_candidate_03.png",
+      "final_output_file": null,
+      "mask_file": null,
+      "mask_type": "bbox",
+      "extraction_method": "bbox",
       "quality_status": "success",
       "review_status": "needs_review",
-      "notes": "Detected candidate scene island"
+      "animation_role": null,
+      "movable": false,
+      "layer_order": null,
+      "pivot_point": null,
+      "anchor_point": null,
+      "motion_presets": [],
+      "notes": "Detected candidate scene island",
+      "output_file": "output/png_assets/trimmed/scene_candidate_03.png"
     },
     {
       "asset_name": "scene_candidate_04",
@@ -57,10 +93,22 @@
         215,
         177
       ],
-      "output_file": "output/png_assets/trimmed/scene_candidate_04.png",
+      "raw_output_file": "output/png_assets/raw/scene_candidate_04.png",
+      "trimmed_output_file": "output/png_assets/trimmed/scene_candidate_04.png",
+      "final_output_file": null,
+      "mask_file": null,
+      "mask_type": "bbox",
+      "extraction_method": "bbox",
       "quality_status": "success",
       "review_status": "needs_review",
-      "notes": "Detected candidate scene island"
+      "animation_role": null,
+      "movable": false,
+      "layer_order": null,
+      "pivot_point": null,
+      "anchor_point": null,
+      "motion_presets": [],
+      "notes": "Detected candidate scene island",
+      "output_file": "output/png_assets/trimmed/scene_candidate_04.png"
     }
   ]
 }

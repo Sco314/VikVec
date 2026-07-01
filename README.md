@@ -11,6 +11,7 @@ VikVec helps you:
 - remove simple black or white backgrounds to create transparent PNGs
 - build starter manifests for organizing extracted assets
 - batch-crop assets described in a JSON manifest
+- apply polygon or mask-file alpha masks to keep only the intended isometric scene shape
 
 ## Raster crops vs true vector assets
 
@@ -28,7 +29,9 @@ Auto-vectorization can be helpful for rough tracing, but it does not automatical
 2. Crop scene islands and reusable parts.
 3. Remove simple backgrounds when needed.
 4. Save manifest entries for each asset.
-5. Rebuild high-value assets as clean SVGs later if needed.
+5. Add polygon masks for angled scene assets when the rectangular crop includes extra fragments.
+6. Finalize the asset to a transparent PNG in output/png_assets/final/.
+7. Rebuild high-value assets as clean SVGs later if needed.
 
 ## Commands
 
@@ -48,6 +51,18 @@ python -m vikvec.cli detect-scenes input/reference_scene.png output/manifests/de
 
 ```bash
 python -m vikvec.cli batch-crop input/reference_scene.png output/manifests/detected_scenes_manifest.json
+```
+
+### Apply a polygon mask to a single asset
+
+```bash
+python -m vikvec.cli apply-mask output/png_assets/trimmed/scene_candidate_01.png output/png_assets/final/scene_training_room_iso_01.png --polygon "20,65 95,10 180,55 115,130"
+```
+
+### Finalize assets from a manifest
+
+```bash
+python -m vikvec.cli finalize-assets output/manifests/manual_scene_manifest.json
 ```
 
 ### Create a contact sheet
@@ -85,7 +100,27 @@ python -m vikvec.cli manifest output/manifests/manifest.json
 1. Detect candidate scene islands from a composite screenshot.
 2. Batch-crop each candidate to raw and trimmed PNG assets.
 3. Review the trimmed crops with a contact sheet.
-4. Use the review report to flag blank or low-content crops.
+4. Edit the manifest to add polygon masks for angled scenes where the rough bounding box includes neighboring geometry.
+5. Run finalize-assets to produce transparent final PNGs in output/png_assets/final/.
+6. Review the final contact sheet at output/contact_sheets/final_review.png before using the assets for animation or later sub-asset extraction.
+
+## Mask terminology
+
+- bbox = rough rectangular crop; useful for fast isolation, but not the final visible shape
+- mask = the final visible shape, expressed as an alpha channel
+- polygon mask = best for isometric room or floor shapes because it follows the angled perimeter
+- mask file = best for people or complex objects later when a hand-authored PNG mask is available
+
+## Recommended sequence
+
+A. Detect scenes
+B. Crop rough boxes
+C. Inspect the review contact sheet
+D. Edit the manual manifest
+E. Add polygon masks for angled scenes
+F. Run finalize-assets
+G. Inspect final_review.png
+H. Only use output/png_assets/final/ for animation or sub-asset extraction
 
 ## Future optional integrations
 

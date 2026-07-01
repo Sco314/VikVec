@@ -1,0 +1,58 @@
+{
+  "project_name": "VikVec manual scene masks",
+  "created_at": "2026-06-30T00:00:00Z",
+  "assets": [
+    {
+      "asset_name": "scene_training_room_iso_01",
+      "asset_type": "scene",
+      "bbox": [20, 40, 220, 180],
+      "trimmed_output_file": "output/png_assets/trimmed/scene_training_room_iso_01.png",
+      "mask_type": "bbox",
+      "polygon": [],
+      "final_output_file": "",
+      "animation_role": "background",
+      "layer_order": 1,
+      "review_status": "needs_review",
+      "notes": "Start with a bbox mask. Replace polygon points with a clean isometric outline once the room perimeter is known."
+    },
+    {
+      "asset_name": "scene_training_room_iso_02",
+      "asset_type": "scene",
+      "bbox": [260, 80, 240, 200],
+      "trimmed_output_file": "output/png_assets/trimmed/scene_training_room_iso_02.png",
+      "mask_type": "bbox",
+      "polygon": [],
+      "final_output_file": "",
+      "animation_role": "background",
+      "layer_order": 2,
+      "review_status": "needs_review",
+      "notes": "Edit polygon points for the floor and wall outline to remove nearby geometry."
+    },
+    {
+      "asset_name": "scene_training_room_iso_03",
+      "asset_type": "scene",
+      "bbox": [520, 60, 220, 180],
+      "trimmed_output_file": "output/png_assets/trimmed/scene_training_room_iso_03.png",
+      "mask_type": "bbox",
+      "polygon": [],
+      "final_output_file": "",
+      "animation_role": "background",
+      "layer_order": 3,
+      "review_status": "needs_review",
+      "notes": "Use a polygon mask once the room perimeter is manually traced from the source image."
+    },
+    {
+      "asset_name": "scene_training_room_iso_04",
+      "asset_type": "scene",
+      "bbox": [760, 100, 220, 190],
+      "trimmed_output_file": "output/png_assets/trimmed/scene_training_room_iso_04.png",
+      "mask_type": "bbox",
+      "polygon": [],
+      "final_output_file": "",
+      "animation_role": "background",
+      "layer_order": 4,
+      "review_status": "needs_review",
+      "notes": "Polygon points should cover the visible floor and walls, leaving the rest transparent."
+    }
+  ]
+}

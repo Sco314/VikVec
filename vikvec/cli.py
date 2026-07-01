@@ -2,6 +2,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from shutil import copy2
 
 from PIL import Image
 
@@ -10,6 +11,7 @@ from .crop_assets import crop_image
 from .detect_scenes import detect_scene_islands
 from .image_inspect import inspect_image
 from .manifest import build_manifest, load_manifest, write_manifest
+from .mask import apply_mask_file, apply_polygon_mask
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -40,6 +42,15 @@ def build_parser() -> argparse.ArgumentParser:
     batch_parser = subparsers.add_parser("batch-crop", help="Crop all assets listed in a manifest")
     batch_parser.add_argument("input_path")
     batch_parser.add_argument("manifest_path")
+
+    apply_mask_parser = subparsers.add_parser("apply-mask", help="Apply a polygon or mask-file mask to an image")
+    apply_mask_parser.add_argument("input_path")
+    apply_mask_parser.add_argument("output_path")
+    apply_mask_parser.add_argument("--polygon", help="Polygon points as 'x1,y1 x2,y2 x3,y3'")
+    apply_mask_parser.add_argument("--mask-file", help="Path to a PNG mask image")
+
+    finalize_assets_parser = subparsers.add_parser("finalize-assets", help="Finalize assets from a manifest")
+    finalize_assets_parser.add_argument("manifest_path")
 
     contact_sheet_parser = subparsers.add_parser("contact-sheet", help="Create a contact sheet from trimmed assets")
     contact_sheet_parser.add_argument("manifest_path")
@@ -145,6 +156,70 @@ def main(argv: list[str] | None = None) -> int:
             print(f"updated_manifest: {output.resolve()}")
             print(f"processed_assets: {len(updated_assets)}")
 
+        elif args.command == "apply-mask":
+            if args.polygon and args.mask_file:
+                raise ValueError("Choose either --polygon or --mask-file, not both")
+            if args.polygon:
+                points = []
+                for token in args.polygon.split():
+                    if "," not in token:
+                        raise ValueError(f"Invalid point token: {token}")
+                    x_text, y_text = token.split(",", 1)
+                    points.append((int(x_text), int(y_text)))
+                output = apply_polygon_mask(args.input_path, args.output_path, points)
+            elif args.mask_file:
+                output = apply_mask_file(args.input_path, args.mask_file, args.output_path)
+            else:
+                raise ValueError("Provide --polygon or --mask-file")
+            print(f"output_path: {output.resolve()}")
+
+        elif args.command == "finalize-assets":
+            manifest = load_manifest(args.manifest_path)
+            assets = manifest.get("assets", [])
+            if not assets:
+                raise ValueError("The manifest does not contain any assets to process")
+
+            output_dir = Path("output/png_assets/final")
+            output_dir.mkdir(parents=True, exist_ok=True)
+            updated_assets = []
+
+            for asset in assets:
+                source_rel = asset.get("trimmed_output_file") or asset.get("raw_output_file") or asset.get("output_file")
+                if not source_rel:
+                    raise ValueError(f"Asset {asset.get('asset_name', 'unknown')} is missing an input file")
+
+                source_path = Path(source_rel)
+                if not source_path.exists():
+                    raise FileNotFoundError(f"Input asset file was not found: {source_path}")
+
+                final_name = Path(source_rel).name
+                final_path = output_dir / final_name
+                mask_type = asset.get("mask_type", "bbox")
+
+                if mask_type == "polygon":
+                    polygon = asset.get("polygon", [])
+                    if not polygon:
+                        raise ValueError(f"Asset {asset.get('asset_name', 'unknown')} is missing polygon points")
+                    apply_polygon_mask(source_path, final_path, polygon)
+                elif mask_type == "mask_file":
+                    mask_file = asset.get("mask_file")
+                    if not mask_file:
+                        raise ValueError(f"Asset {asset.get('asset_name', 'unknown')} is missing mask_file")
+                    apply_mask_file(source_path, mask_file, final_path)
+                else:
+                    copy2(source_path, final_path)
+
+                asset_record = dict(asset)
+                asset_record["final_output_file"] = str(Path("output/png_assets/final") / final_name)
+                asset_record["review_status"] = "final_needs_visual_review"
+                updated_assets.append(asset_record)
+
+            updated_manifest = dict(manifest)
+            updated_manifest["assets"] = updated_assets
+            output = write_manifest(updated_manifest, Path("output/manifests/manifest_updated.json"))
+            print(f"updated_manifest: {output.resolve()}")
+            print(f"processed_assets: {len(updated_assets)}")
+
         elif args.command == "contact-sheet":
             manifest = load_manifest(args.manifest_path)
             assets = manifest.get("assets", [])
@@ -154,7 +229,7 @@ def main(argv: list[str] | None = None) -> int:
             images = []
             labels = []
             for asset in assets:
-                output_path = Path(asset.get("output_file", ""))
+                output_path = Path(asset.get("final_output_file") or asset.get("output_file") or "")
                 if output_path.exists():
                     images.append(Image.open(output_path).convert("RGBA"))
                     labels.append(asset.get("asset_name", output_path.stem))
