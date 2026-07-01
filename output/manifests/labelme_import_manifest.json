@@ -56,7 +56,7 @@
       ],
       "mask_file": null,
       "final_output_file": "output/png_assets/final/scene_process_tanks_iso_01.png",
-      "review_status": "final_needs_visual_review",
+      "review_status": "needs_visual_review",
       "animation_role": "static_background",
       "movable": false,
       "layer_order": 10,

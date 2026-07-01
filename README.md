@@ -23,6 +23,27 @@ This prototype focuses on the first step: extraction. Later, cleaned SVG version
 
 Auto-vectorization can be helpful for rough tracing, but it does not automatically produce polished industrial SVGs. A generated outline may contain messy geometry, embedded raster artifacts, or poor layer structure. VikVec keeps the process honest by treating raster crops as extraction outputs and leaving true vector rebuilding as a later, manual or semi-manual step.
 
+## Current direction
+
+VikVec is moving to a mask-first asset pipeline. Bounding boxes may still be useful for rough candidate detection or crop windows, but bboxes are not the final asset boundary.
+
+The manual LabelMe polygon spike proved the mask-first data path:
+
+LabelMe polygon JSON -> VikVec manifest -> transparent PNG -> contact sheet review.
+
+Mask-first does not mean manual-first. LabelMe proved the data path. The production target is automated candidate masks plus human correction only for failures.
+
+The target workflow is:
+
+1. Generate automated/scriptable candidate masks.
+2. Write VikVec manifest entries.
+3. Finalize transparent PNG outputs.
+4. Review results in contact sheets.
+5. Use LabelMe only to fix failed or dirty masks.
+6. Reimport corrected polygon or mask annotations if needed.
+
+LabelMe is now positioned as a fallback correction/review tool, not the intended production workflow for every asset. The next research focus is headless/scriptable mask generation, especially `osam` headless probes, SAM/SAM2 automatic mask generation, SAM-remove-background style scriptable cutout workflows, and Grounded-SAM style text-driven detection later.
+
 ## Suggested workflow
 
 1. Inspect the source screenshot.

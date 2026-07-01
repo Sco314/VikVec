@@ -1,0 +1,20 @@
+{
+  "assets": [
+    {
+      "asset_name": "scene_process_tanks_iso_01",
+      "asset_type": "scene",
+      "source_file": "input/reference_scene.png",
+      "bbox": [],
+      "extraction_method": "labelme_polygon",
+      "mask_type": "polygon",
+      "polygon": [],
+      "mask_file": "spikes/labelme_polygon/outputs/scene_process_tanks_iso_01_mask.png",
+      "final_output_file": "spikes/labelme_polygon/outputs/scene_process_tanks_iso_01.png",
+      "review_status": "needs_annotation",
+      "animation_role": "static_background",
+      "movable": false,
+      "layer_order": 0,
+      "notes": "Manual LabelMe polygon test for the process/tank scene. Polygon points, mask file, and final transparent PNG are pending annotation."
+    }
+  ]
+}

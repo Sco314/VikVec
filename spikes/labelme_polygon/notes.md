@@ -1,47 +1,96 @@
-# Notes: labelme_polygon spike — concrete execution plan
+# Notes: labelme_polygon spike - first controlled test
 
-Purpose
-- Track the step-by-step plan for validating whether LabelMe-style polygon annotation yields usable `mask_file` and `final_output_file` artifacts for VikVec.
+## Purpose
 
-Planned steps (do not install anything yet)
-1. Prepare test inputs: confirm `input/reference_scene.png` exists in the workspace. If it does not exist, add a small representative image under `spikes/labelme_polygon/inputs/`.
-2. (Manual) Open the image in LabelMe (desktop) and draw a polygon around `scene_process_tanks_iso_01`, excluding neighboring fragments.
-3. Export LabelMe JSON annotation and, if possible, an exported mask PNG. Capture a screenshot of the polygon in the UI.
-4. Locally (prototype script), convert the polygon into a mask PNG if LabelMe did not export one. Do this in the spike folder only.
-5. Apply the mask to the source image to produce a `final_output_file` RGBA (alpha) PNG.
-6. Record results in `spikes/labelme_polygon/notes.md` and copy artifacts to `spikes/labelme_polygon/outputs/`.
+Track the plan and later findings for validating whether a LabelMe-style polygon annotation workflow can produce clean mask data for VikVec before testing heavier model-backed inference.
 
-Checklist for each run
+## Test contract
+
+- Test image: `input/reference_scene.png`
+- Target asset: `scene_process_tanks_iso_01`
+- Core question: Can a LabelMe-style polygon annotation workflow create a clean mask around the process/tank scene and export data that VikVec can use?
+- Expected manual annotation: one polygon around only the tank/process scene, excluding neighboring fragments.
+- Initial manifest example: `spikes/labelme_polygon/example_manifest_entry.json`
+
+## Planned steps (do not install anything yet)
+
+1. Confirm `input/reference_scene.png` is present.
+2. After explicit approval, install/run LabelMe locally.
+3. Open `input/reference_scene.png` in LabelMe.
+4. Draw a polygon around `scene_process_tanks_iso_01`, excluding neighboring fragments and unrelated scene pieces.
+5. Save the LabelMe JSON annotation under `spikes/labelme_polygon/outputs/`.
+6. Record the polygon points from the LabelMe JSON.
+7. Export a mask PNG if LabelMe supports it in the approved local setup; otherwise plan a small spike-only JSON-to-mask conversion helper later.
+8. Later, apply the mask to produce a transparent PNG and record the `final_output_file` path.
+9. Later, update the manifest entry fields once real outputs exist.
+
+## Expected outputs
+
+- LabelMe JSON annotation.
+- Polygon points for the target asset.
+- `mask_file` or `polygon` field.
+- `final_output_file` transparent PNG path later.
+- Manifest entry later.
+
+## Checklist for each run
+
 - Input present: `input/reference_scene.png`
-- Polygon JSON exported and polygon points verified
-- Mask PNG present (either exported or generated)
-- `final_output_file` RGBA produced and visually verified (no neighboring fragments)
-- Manifest mapping verified: polygon points and mask path recorded
+- Polygon JSON exported.
+- Polygon points verified.
+- Mask PNG present, either exported or generated later.
+- `final_output_file` RGBA produced later.
+- Visual review confirms no neighboring scene fragments remain.
+- Manifest mapping verified for `extraction_method`, `mask_type`, `polygon`, `mask_file`, `final_output_file`, and `review_status`.
 
-Mapping to VikVec manifest fields (example)
+## VikVec manifest mapping
+
 ```
 {
-	"asset_name": "scene_process_tanks_iso_01",
-	"extraction_method": "labelme_polygon",
-	"mask_type": "polygon",
-	"polygon": [[x1,y1],[x2,y2],...],
-	"mask_file": "spikes/labelme_polygon/outputs/scene_process_tanks_mask.png",
-	"final_output_file": "spikes/labelme_polygon/outputs/scene_process_tanks_final.png",
-	"review_status": "final_needs_visual_review"
+  "asset_name": "scene_process_tanks_iso_01",
+  "extraction_method": "labelme_polygon",
+  "mask_type": "polygon",
+  "polygon": [],
+  "mask_file": "spikes/labelme_polygon/outputs/scene_process_tanks_iso_01_mask.png",
+  "final_output_file": "spikes/labelme_polygon/outputs/scene_process_tanks_iso_01.png",
+  "review_status": "needs_annotation"
 }
 ```
 
-Success criteria
-- One clean transparent PNG produced for the target asset with no neighboring fragments.
-- Polygon points are storable and mappable in the manifest as above.
+## Success criteria
 
-Risk and mitigations
-- Risk: LabelMe requires desktop and PyQt. Mitigation: do not install as part of this spike; run manual evaluation on a separate approved machine or get approval first.
+- No neighboring scene fragments remain.
+- Polygon points can be stored in the VikVec manifest.
+- Output can map to:
+  - `extraction_method: labelme_polygon`
+  - `mask_type: polygon`
+  - `polygon`
+  - `mask_file`
+  - `final_output_file`
+  - `review_status`
 
-Recordkeeping
+## Dependency risk
+
+Low to medium. LabelMe is lighter than SAM/SAM2 and tests the review workflow before model inference, but it can still involve Python desktop UI dependencies such as PyQt.
+
+## Recordkeeping
+
 - Save screenshots, exported JSON, generated mask PNG, and final RGBA in `spikes/labelme_polygon/outputs/` with timestamps.
+- Do not modify VikVec core code as part of this spike.
+- Do not install SAM/SAM2, torch, Stable Diffusion, LaMa, or checkpoints.
 
-Next actions after approval
-- If the manual spike succeeds and the process is valuable, propose either:
-	- a small helper script in `spikes/labelme_polygon/` to convert LabelMe JSON → mask PNG and integrate into a `vikvec/backends/labelme_polygon.py` adapter (design only), or
-	- document a reviewer workflow linking to `docs/spike_plan_mask_tools.md` and update architecture docs.
+## Next action after approval
+
+Install and run LabelMe locally, then annotate `input/reference_scene.png` and save the JSON output under `spikes/labelme_polygon/outputs/`.
+
+## Spike result
+
+- LabelMe installed and launched locally.
+- LabelMe 6.3.1 pulled in osam/onnxruntime and appeared to load sam2:latest automation, so it is not as lightweight as expected.
+- Created `scene_process_tanks_iso_01.json`.
+- VikVec imported the LabelMe polygon JSON into `output/manifests/labelme_import_manifest.json`.
+- `finalize-assets` produced `output/png_assets/final/scene_process_tanks_iso_01.png`.
+- `contact-sheet` produced `output/contact_sheets/labelme_final_review.png`.
+- The pipeline is proven: LabelMe polygon -> VikVec manifest -> transparent PNG -> contact sheet review.
+- The output still needs better annotation tightness, but the remaining problem is annotation quality, not architecture.
+- Conclusion: LabelMe is viable as a manual correction/review fallback, but likely too manual for hundreds of assets from scratch.
+- Next: automated/scriptable candidate mask generation.

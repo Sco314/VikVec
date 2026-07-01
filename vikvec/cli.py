@@ -4,14 +4,8 @@ import sys
 from pathlib import Path
 from shutil import copy2
 
-from PIL import Image
-
-from .background import remove_background
-from .crop_assets import crop_image
-from .detect_scenes import detect_scene_islands
-from .image_inspect import inspect_image
+from .labelme_import import load_labelme_manifest
 from .manifest import build_manifest, load_manifest, write_manifest
-from .mask import apply_mask_file, apply_polygon_mask
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -59,7 +53,29 @@ def build_parser() -> argparse.ArgumentParser:
     review_report_parser = subparsers.add_parser("review-report", help="Summarize review status for a manifest")
     review_report_parser.add_argument("manifest_path")
 
+    import_labelme_parser = subparsers.add_parser("import-labelme", help="Import LabelMe polygons into a manifest")
+    import_labelme_parser.add_argument("input_json")
+    import_labelme_parser.add_argument("output_manifest_json")
+
     return parser
+
+
+def resolve_manifest_path(raw_path: str | Path, manifest_path: str | Path) -> Path:
+    path = Path(raw_path)
+    if path.is_absolute() or path.exists():
+        return path
+
+    manifest_relative = Path(manifest_path).parent / path
+    if manifest_relative.exists():
+        return manifest_relative
+
+    if "input" in path.parts:
+        input_index = path.parts.index("input")
+        repo_relative = Path(*path.parts[input_index:])
+        if repo_relative.exists():
+            return repo_relative
+
+    return path
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -68,6 +84,8 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         if args.command == "inspect":
+            from .image_inspect import inspect_image
+
             result = inspect_image(args.image_path)
             print(f"width: {result['width']}")
             print(f"height: {result['height']}")
@@ -76,11 +94,15 @@ def main(argv: list[str] | None = None) -> int:
             print(f"has_alpha: {result['has_alpha']}")
 
         elif args.command == "crop":
+            from .crop_assets import crop_image
+
             size = crop_image(args.input_path, args.output_path, tuple(args.bbox))
             print(f"output_path: {Path(args.output_path).resolve()}")
             print(f"crop_size: {size[0]}x{size[1]}")
 
         elif args.command == "remove-bg":
+            from .background import remove_background
+
             output = remove_background(args.input_path, args.output_path, color=args.color, threshold=args.threshold)
             print(f"output_path: {output.resolve()}")
             print("background_removed: true")
@@ -91,6 +113,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"manifest_written: {output.resolve()}")
 
         elif args.command == "detect-scenes":
+            from .detect_scenes import detect_scene_islands
+
             candidates = detect_scene_islands(args.input_path)
             assets = []
             for index, candidate in enumerate(candidates, start=1):
@@ -126,6 +150,9 @@ def main(argv: list[str] | None = None) -> int:
                 trimmed_output_path = Path(asset["output_file"])
                 bbox = tuple(asset["bbox"])
 
+                from .crop_assets import crop_image
+                from PIL import Image
+
                 crop_image(input_path, raw_output_path, bbox)
 
                 with Image.open(raw_output_path) as image:
@@ -157,6 +184,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"processed_assets: {len(updated_assets)}")
 
         elif args.command == "apply-mask":
+            from .mask import apply_mask_file, apply_polygon_mask
+
             if args.polygon and args.mask_file:
                 raise ValueError("Choose either --polygon or --mask-file, not both")
             if args.polygon:
@@ -184,19 +213,35 @@ def main(argv: list[str] | None = None) -> int:
             updated_assets = []
 
             for asset in assets:
-                source_rel = asset.get("trimmed_output_file") or asset.get("raw_output_file") or asset.get("output_file")
+                from .mask import apply_mask_file, apply_polygon_mask, apply_source_polygon_mask
+
+                source_rel = (
+                    asset.get("source_file")
+                    if asset.get("extraction_method") == "labelme_polygon"
+                    else asset.get("trimmed_output_file") or asset.get("raw_output_file") or asset.get("output_file")
+                )
                 if not source_rel:
                     raise ValueError(f"Asset {asset.get('asset_name', 'unknown')} is missing an input file")
 
-                source_path = Path(source_rel)
+                source_path = resolve_manifest_path(source_rel, args.manifest_path)
                 if not source_path.exists():
                     raise FileNotFoundError(f"Input asset file was not found: {source_path}")
 
-                final_name = Path(source_rel).name
-                final_path = output_dir / final_name
+                final_output_file = asset.get("final_output_file")
+                if final_output_file:
+                    final_path = Path(final_output_file)
+                    final_name = final_path.name
+                else:
+                    final_name = Path(source_rel).name
+                    final_path = output_dir / final_name
                 mask_type = asset.get("mask_type", "bbox")
 
-                if mask_type == "polygon":
+                if asset.get("extraction_method") == "labelme_polygon" and mask_type == "polygon":
+                    polygon = asset.get("polygon", [])
+                    if not polygon:
+                        raise ValueError(f"Asset {asset.get('asset_name', 'unknown')} is missing polygon points")
+                    apply_source_polygon_mask(source_path, final_path, polygon)
+                elif mask_type == "polygon":
                     polygon = asset.get("polygon", [])
                     if not polygon:
                         raise ValueError(f"Asset {asset.get('asset_name', 'unknown')} is missing polygon points")
@@ -210,7 +255,7 @@ def main(argv: list[str] | None = None) -> int:
                     copy2(source_path, final_path)
 
                 asset_record = dict(asset)
-                asset_record["final_output_file"] = str(Path("output/png_assets/final") / final_name)
+                asset_record["final_output_file"] = str(final_path)
                 asset_record["review_status"] = "final_needs_visual_review"
                 updated_assets.append(asset_record)
 
@@ -221,6 +266,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"processed_assets: {len(updated_assets)}")
 
         elif args.command == "contact-sheet":
+            from PIL import Image
+
             manifest = load_manifest(args.manifest_path)
             assets = manifest.get("assets", [])
             if not assets:
@@ -249,7 +296,7 @@ def main(argv: list[str] | None = None) -> int:
                 x = col * cell_w + 10
                 y = row * cell_h + 10 + row * 40
                 resized = image.resize((200, 200))
-                sheet.paste(resized, (x, y))
+                sheet.alpha_composite(resized, dest=(x, y))
                 draw = Image.new("RGBA", sheet.size, (255, 255, 255, 0))
                 from PIL import ImageDraw, ImageFont
 
@@ -275,6 +322,12 @@ def main(argv: list[str] | None = None) -> int:
                 "output_contact_sheet_path": "output/contact_sheets/review.png",
             }
             print(json.dumps(report, indent=2))
+
+        elif args.command == "import-labelme":
+            manifest = load_labelme_manifest(args.input_json)
+            output = write_manifest(manifest, args.output_manifest_json)
+            print(f"manifest_written: {output.resolve()}")
+            print(f"assets_imported: {len(manifest.get('assets', []))}")
 
         else:
             parser.print_help()
