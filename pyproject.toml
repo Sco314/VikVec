@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vikvec"
+version = "0.1.0"
+description = "Local-first prototype for extracting reusable isometric industrial assets from composite training images."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "VikVec" }]
+dependencies = [
+    "Pillow>=10,<13",
+    "opencv-python-headless>=4.8,<5",
+    "numpy>=1.24,<3",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+vikvec = "vikvec.cli:main"
+
+[tool.setuptools]
+packages = ["vikvec"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

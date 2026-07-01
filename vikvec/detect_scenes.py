@@ -4,6 +4,9 @@ import cv2
 import numpy as np
 
 
+# [BBOX] Candidate detector. Emits rectangular bboxes only. This is the ONE bbox role the
+# mask-first architecture keeps (docs/architecture_decision_mask_first.md): fast candidate
+# detection. Downstream steps must refine these boxes into masks, not treat them as finals.
 def detect_scene_islands(input_path, background="white", threshold=245, min_area=500, padding=10):
     """Detect large connected scene islands in an image using OpenCV."""
     source = Path(input_path)

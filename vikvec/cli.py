@@ -6,7 +6,7 @@ from shutil import copy2
 
 from PIL import Image
 
-from .background import remove_background
+from .background import isolate_auto_foreground, remove_background
 from .crop_assets import crop_image
 from .detect_scenes import detect_scene_islands
 from .image_inspect import inspect_image
@@ -114,6 +114,9 @@ def main(argv: list[str] | None = None) -> int:
             print(f"scene_candidates: {len(assets)}")
 
         elif args.command == "batch-crop":
+            # [BBOX] This whole command is bbox-centric: every asset is isolated purely by
+            # its rectangular `bbox`, then content-trimmed. The trimmed PNG it emits is a
+            # fast candidate, not a masked final asset (see docs/architecture_decision_mask_first.md).
             manifest = load_manifest(args.manifest_path)
             assets = manifest.get("assets", [])
             if not assets:
@@ -206,7 +209,16 @@ def main(argv: list[str] | None = None) -> int:
                     if not mask_file:
                         raise ValueError(f"Asset {asset.get('asset_name', 'unknown')} is missing mask_file")
                     apply_mask_file(source_path, mask_file, final_path)
+                elif mask_type == "auto_foreground":
+                    threshold = int(asset.get("auto_foreground_threshold", 240))
+                    isolate_auto_foreground(source_path, final_path, threshold=threshold)
                 else:
+                    # [BBOX] Fallback for mask_type "bbox": the trimmed rectangular crop is
+                    # copied verbatim as the "final" asset with no alpha shape applied.
+                    # Per docs/architecture_decision_mask_first.md this is exactly the legacy
+                    # behavior the mask-first migration targets — a bbox crop is a candidate,
+                    # not a finished asset. Replace with a mask (polygon/mask_file/auto_foreground)
+                    # once the true object shape is known.
                     copy2(source_path, final_path)
 
                 asset_record = dict(asset)

@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import numpy as np
 from PIL import Image
 
 
@@ -18,18 +19,21 @@ def remove_background(input_path: str | Path, output_path: str | Path, color: st
 
     with Image.open(source) as image:
         rgba = image.convert("RGBA")
-        pixels = []
-        for red, green, blue, alpha in rgba.getdata():
-            if color_name == "black" and (red <= threshold and green <= threshold and blue <= threshold):
-                alpha = 0
-            elif color_name == "white" and (red >= 255 - threshold and green >= 255 - threshold and blue >= 255 - threshold):
-                alpha = 0
-            pixels.append((red, green, blue, alpha))
+        arr = np.array(rgba)
+        red, green, blue = arr[..., 0], arr[..., 1], arr[..., 2]
 
-        rgba.putdata(pixels)
+        if color_name == "black":
+            background = (red <= threshold) & (green <= threshold) & (blue <= threshold)
+        else:
+            limit = 255 - threshold
+            background = (red >= limit) & (green >= limit) & (blue >= limit)
+
+        arr[..., 3][background] = 0
+        result = Image.fromarray(arr, "RGBA")
+
         target = Path(output_path)
         target.parent.mkdir(parents=True, exist_ok=True)
-        rgba.save(target, format="PNG")
+        result.save(target, format="PNG")
         return target
 
 
