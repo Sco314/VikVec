@@ -2,7 +2,9 @@
 
 ## Purpose
 
-This spike researches practical ways to reduce manual polygon drawing for VikVec asset masks while preserving human review and correction.
+This spike researches automated/scriptable assisted mask generation for VikVec asset masks while preserving human review and correction.
+
+It is not primarily about manual LabelMe clicking. LabelMe GUI is the fallback/correction baseline after candidate masks fail review.
 
 ## Proven baseline
 
@@ -14,7 +16,22 @@ That baseline works architecturally. The remaining problem is how to create clea
 
 ## New goal
 
-Find a practical assisted-mask workflow for `input/reference_scene.png`, focused on `scene_process_tanks_iso_01`, that can produce a usable LabelMe JSON, mask, or transparent PNG while still allowing a human to review and correct the result.
+Find a practical headless assisted-mask workflow for `input/reference_scene.png`, focused on `scene_process_tanks_iso_01`, that can produce candidate masks, polygons, and transparent PNGs without per-asset manual clicking.
+
+The first technical probe is `osam` headless/scriptable capability because LabelMe installed it and it supports SAM-family model execution.
+
+Expected outputs:
+
+- candidate mask PNGs
+- transparent cutout PNGs
+- JSON reports of parameters used
+- possible VikVec-compatible fields:
+  - `extraction_method`
+  - `mask_type`
+  - `mask_file`
+  - `polygon`
+  - `final_output_file`
+  - `review_status`
 
 ## Sandbox rules
 
@@ -34,4 +51,3 @@ Find a practical assisted-mask workflow for `input/reference_scene.png`, focused
 - Output supports human review/correction.
 - Output maps cleanly to VikVec fields: `extraction_method`, `mask_type`, `polygon`, `mask_file`, `final_output_file`, and `review_status`.
 - Setup burden is realistic for a correction/review workflow.
-

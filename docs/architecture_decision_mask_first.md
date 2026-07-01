@@ -4,6 +4,8 @@
 
 VikVec will adopt a mask-first architecture: masks (alpha channels or polygons) are the primary extraction representation. Bounding boxes remain useful as a fast candidate detector, but they are not the final asset representation. The primary motivation is that rectangular crops frequently include neighboring scene fragments that should be excluded from final assets.
 
+Mask-first does not mean manual-first. LabelMe validated the mask-first data path, but it should not become the main extraction method at scale. The production target is automated candidate masks plus human correction only for failures.
+
 ## Why change: practical symptom
 
 - Observed symptom: contact sheets (`final_review.png`) often show neighboring fragments inside cropped assets.
@@ -21,18 +23,16 @@ VikVec will adopt a mask-first architecture: masks (alpha channels or polygons) 
 
 - `mask` — an alpha mask or polygon describing exact object shape. All backends should be able to produce or accept a `mask_file` that maps to manifest entries.
 - `extraction_method` should include mask-first types: `mask_file`, `polygon`, `sam_point`, `sam_box`, `auto_foreground`.
+- `bbox` — candidate hint, crop window, or rough proposal. A bbox is not the asset boundary.
+- `polygon` — editable boundary representation, often produced by tools or used as manual fallback correction.
 
 ## Recommended backend taxonomy
 
-- `opencv_foreground`: lightweight default for simple white-sheet extraction (current `auto_foreground`).
-- `labelme_polygon`: manual correction and polygon-export fallback for review.
-- `sam_point` / `sam_box`: optional future SAM-backed prompt segmentation.
-- `sam2_point` / `sam2_box`: future image/video segmentation backends.
-- `grounded_sam_text`: optional text-prompt driven finder for domain concepts.
-- `rembg`: optional background removal backend for difficult cases.
-- `inpaint_remove`: optional cleanup/compositing backend for final artifacts.
-- `mask_to_svg`: optional mask→vector conversion pipeline (sam2vec-style).
-- `svg_path_reveal`: optional animation backend for path reveals.
+- Automatic candidate mask generator: creates many candidate masks/polygons from an image without per-asset clicking.
+- Promptable segmentation backend: accepts generated or human-provided points/boxes/text prompts and returns masks.
+- Review/correction UI: lets humans fix only failed/dirty masks; LabelMe belongs here.
+- Finalizer/exporter: applies masks/polygons to create canonical transparent PNGs.
+- Contact sheet QA: makes review artifacts that expose bad masks quickly.
 
 ## Dataflow (mask-first)
 
@@ -42,15 +42,27 @@ VikVec will adopt a mask-first architecture: masks (alpha channels or polygons) 
 4. Trim/compose: crop around mask tight bounds; apply mask to produce trimmed `final_output_file` (RGBA) and `mask_file`.
 5. Review: contact sheets should composite final `final_output_file` images (alpha-aware) and show mask overlays.
 
+## Revised pipeline target
+
+automatic extractor backend
+-> candidate masks/polygons
+-> VikVec manifest
+-> PNG finalization
+-> contact sheet QA
+-> LabelMe correction for failures
+-> reimport corrected annotation
+
 ## Implementation guidance & constraints
 
 - Preserve the manifest schema and add clear `mask_file` and `polygon` mapping.
 - Keep bboxes as candidate detectors only — don't treat `trimmed_output_file` from a bbox crop as a final asset unless it has been masked/refined.
+- Treat manual polygons as fallback corrections, not the default path for every asset.
 - Prefer small, dependency-light utilities early: mask dilation, erosion, overlay visualizer, contour-to-SVG helper.
 - Do not install heavy ML dependencies (PyTorch/SAM) or download model checkpoints yet. Evaluate in isolated spikes per the spike policy.
 
 ## Explicit recommendation
 
 - Stop investing effort in bbox-only cleanup. Make masks the central abstraction for extraction and review.
-- Use LabelMe-style polygon editing or an annotator that supports SAM masks for review UX.
+- Use automatic/scriptable mask generation as the primary extraction direction.
+- Use LabelMe-style polygon editing or an annotator that supports SAM masks for review/correction UX.
 - Keep backends optional and pluggable; the manifest and review flow remain the durable contract.

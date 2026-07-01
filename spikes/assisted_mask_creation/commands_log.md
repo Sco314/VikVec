@@ -33,5 +33,22 @@ curl -s https://api.github.com/repos/MrSyee/SAM-remove-background
 curl -s https://api.github.com/repos/IDEA-Research/Grounded-Segment-Anything
 curl -s https://api.github.com/repos/geekyutao/Inpaint-Anything
 curl -s "https://api.github.com/search/repositories?q=Grounded-SAM-2"
+HOME=/Users/scottsandvik/Documents/GitHub/VikVec/VikVec/spikes/assisted_mask_creation .venv/bin/osam --help
+HOME=/Users/scottsandvik/Documents/GitHub/VikVec/VikVec/spikes/assisted_mask_creation .venv/bin/osam list
+HOME=/Users/scottsandvik/Documents/GitHub/VikVec/VikVec/spikes/assisted_mask_creation .venv/bin/python -c "import osam, inspect; print(osam); print(dir(osam))"
+HOME=/Users/scottsandvik/Documents/GitHub/VikVec/VikVec/spikes/assisted_mask_creation .venv/bin/osam run --help
+HOME=/Users/scottsandvik/Documents/GitHub/VikVec/VikVec/spikes/assisted_mask_creation .venv/bin/osam pull --help
+HOME=/Users/scottsandvik/Documents/GitHub/VikVec/VikVec/spikes/assisted_mask_creation .venv/bin/python -c "import osam, pathlib; root=pathlib.Path(osam.__file__).parent; print(root); terms=('predict','mask','point','box','prompt','segment'); [print(path) for path in root.rglob('*.py') if any(term in path.read_text(errors='ignore').lower() for term in terms)]"
+sed -n '1,280p' .venv/lib/python3.14/site-packages/osam/__main__.py
+sed -n '1,240p' .venv/lib/python3.14/site-packages/osam/types/_prompt.py
+sed -n '1,220p' .venv/lib/python3.14/site-packages/osam/types/_generate.py
+sed -n '1,220p' .venv/lib/python3.14/site-packages/osam/types/_annotation.py
+sed -n '1,220p' .venv/lib/python3.14/site-packages/osam/types/_bounding_box.py
+sed -n '1,260p' .venv/lib/python3.14/site-packages/osam/_models/sam/_models.py
+sed -n '1,220p' .venv/lib/python3.14/site-packages/osam/apis.py
+HOME=/Users/scottsandvik/Documents/GitHub/VikVec/VikVec/spikes/assisted_mask_creation .venv/bin/osam pull efficientsam:10m
+HOME=/Users/scottsandvik/Documents/GitHub/VikVec/VikVec/spikes/assisted_mask_creation .venv/bin/python spikes/assisted_mask_creation/osam_headless_probe.py
+find spikes/assisted_mask_creation/outputs/osam_probe -maxdepth 1 -type f | sort
+.venv/bin/python -c "import json; from pathlib import Path; r=json.loads(Path('spikes/assisted_mask_creation/outputs/osam_probe/report.json').read_text()); print('model', r['model']); print('automatic', r['supports_automatic_mask_generation']); [print(c['name'], c['bbox'], c['polygon_points'], c['mask_file'], c['final_output_file']) for c in r['candidates']]"
+HOME=/Users/scottsandvik/Documents/GitHub/VikVec/VikVec/spikes/assisted_mask_creation .venv/bin/osam list --all
 ```
-

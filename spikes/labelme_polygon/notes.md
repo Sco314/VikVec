@@ -93,4 +93,4 @@ Install and run LabelMe locally, then annotate `input/reference_scene.png` and s
 - The pipeline is proven: LabelMe polygon -> VikVec manifest -> transparent PNG -> contact sheet review.
 - The output still needs better annotation tightness, but the remaining problem is annotation quality, not architecture.
 - Conclusion: LabelMe is viable as a manual correction/review fallback, but likely too manual for hundreds of assets from scratch.
-- Recommended next spike: `segment_anything_annotator`, because assisted mask creation and correction need to be tested.
+- Next: automated/scriptable candidate mask generation.
