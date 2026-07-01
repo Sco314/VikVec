@@ -1,0 +1,5 @@
+.cache/
+.venv/
+models/
+outputs/*
+!outputs/.gitkeep
