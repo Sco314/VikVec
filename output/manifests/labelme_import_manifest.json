@@ -1,6 +1,6 @@
 {
   "project_name": "VikVec LabelMe import",
-  "created_at": "2026-07-01T03:12:42.982713+00:00",
+  "created_at": "2026-07-01T03:16:22.335478+00:00",
   "assets": [
     {
       "asset_name": "scene_process_tanks_iso_01",
@@ -9,105 +9,49 @@
       "image_width": 495,
       "image_height": 292,
       "bbox": [
-        302,
-        47,
-        193,
-        151
+        299,
+        42,
+        196,
+        161
       ],
       "extraction_method": "labelme_polygon",
       "mask_type": "polygon",
       "polygon": [
         [
-          399.875,
-          47.375
+          392.63274336283183,
+          42.90265486725664
         ],
         [
-          325.875,
-          98.625
+          316.5265486725663,
+          102.19469026548674
         ],
         [
-          326.125,
-          127.375
+          319.18141592920347,
+          124.31858407079648
         ],
         [
-          302.375,
-          139.375
+          299.7123893805309,
+          136.7079646017699
         ],
         [
-          402.625,
-          197.375
+          402.3672566371681,
+          202.1946902654867
         ],
         [
-          493.625,
-          143.875
+          495.0,
+          150.14391066160974
         ],
         [
           494.40265486725656,
-          135.66814159292036
+          133.16814159292036
         ],
         [
-          422.875,
-          94.625
+          427.14601769911496,
+          90.69026548672566
         ],
         [
-          421.625,
-          61.625
-        ]
-      ],
-      "mask_file": null,
-      "final_output_file": "output/png_assets/final/scene_process_tanks_iso_01.png",
-      "review_status": "needs_visual_review",
-      "animation_role": "static_background",
-      "movable": false,
-      "layer_order": 10,
-      "notes": "Imported from LabelMe polygon annotation."
-    },
-    {
-      "asset_name": "scene_process_tanks_iso_01",
-      "asset_type": "scene",
-      "source_file": "../../../input/reference_scene.png",
-      "image_width": 495,
-      "image_height": 292,
-      "bbox": [
-        413,
-        50,
-        1,
-        1
-      ],
-      "extraction_method": "labelme_polygon",
-      "mask_type": "polygon",
-      "polygon": [
-        [
-          413.7324649298597,
-          50.60921843687376
-        ]
-      ],
-      "mask_file": null,
-      "final_output_file": "output/png_assets/final/scene_process_tanks_iso_01.png",
-      "review_status": "needs_visual_review",
-      "animation_role": "static_background",
-      "movable": false,
-      "layer_order": 10,
-      "notes": "Imported from LabelMe polygon annotation."
-    },
-    {
-      "asset_name": "scene_process_tanks_iso_01",
-      "asset_type": "scene",
-      "source_file": "../../../input/reference_scene.png",
-      "image_width": 495,
-      "image_height": 292,
-      "bbox": [
-        462,
-        53,
-        1,
-        1
-      ],
-      "extraction_method": "labelme_polygon",
-      "mask_type": "polygon",
-      "polygon": [
-        [
-          462.375,
-          53.875
+          426.2610619469026,
+          55.2920353982301
         ]
       ],
       "mask_file": null,
