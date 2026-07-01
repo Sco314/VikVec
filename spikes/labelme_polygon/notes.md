@@ -81,3 +81,16 @@ Low to medium. LabelMe is lighter than SAM/SAM2 and tests the review workflow be
 ## Next action after approval
 
 Install and run LabelMe locally, then annotate `input/reference_scene.png` and save the JSON output under `spikes/labelme_polygon/outputs/`.
+
+## Spike result
+
+- LabelMe installed and launched locally.
+- LabelMe 6.3.1 pulled in osam/onnxruntime and appeared to load sam2:latest automation, so it is not as lightweight as expected.
+- Created `scene_process_tanks_iso_01.json`.
+- VikVec imported the LabelMe polygon JSON into `output/manifests/labelme_import_manifest.json`.
+- `finalize-assets` produced `output/png_assets/final/scene_process_tanks_iso_01.png`.
+- `contact-sheet` produced `output/contact_sheets/labelme_final_review.png`.
+- The pipeline is proven: LabelMe polygon -> VikVec manifest -> transparent PNG -> contact sheet review.
+- The output still needs better annotation tightness, but the remaining problem is annotation quality, not architecture.
+- Conclusion: LabelMe is viable as a manual correction/review fallback, but likely too manual for hundreds of assets from scratch.
+- Recommended next spike: `segment_anything_annotator`, because assisted mask creation and correction need to be tested.
